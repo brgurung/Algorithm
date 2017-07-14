@@ -62,6 +62,10 @@ public class Graph {
 		numOfVertices++;
 	}
 	
+	void setDirection(boolean flag)
+	{
+		direction = flag;
+	}
 	
 	void addEdge(int srcIndex, int destIndex)
 	{
@@ -259,6 +263,54 @@ public class Graph {
     	return result;
     }
 
+    boolean hasRouteUtil(int startIndex, int destIndex)
+    {
+    	boolean result = false;
+
+    	Vertex v = vertexList.get(startIndex);
+    
+    	v.status = VertexStatus.DISCOVERED;
+
+    	List<Edge> edgeList = adjList.get(startIndex);
+    	
+    	for (Edge e: edgeList)
+    	{
+    		Vertex adjVertex = e.adjVertex;
+    		Vertex destVertex = vertexList.get(destIndex);
+    		
+    		//System.out.printf("%nadj: %c dest: %c%n", adjVertex.label, destVertex.label);
+			if (adjVertex.label == destVertex.label)
+			{
+				//System.out.println("Found it!");
+				result = true;
+				break;
+			}
+
+    		if (adjVertex.status == VertexStatus.UNDISCOVERED)
+    		{
+
+  				result = hasRouteUtil(adjVertex.index, destVertex.index);
+    		}
+    	}
+
+    	return result;
+    }
+
+    boolean hasRoute(int startIndex, int destIndex)
+    {
+    	if ((startIndex < 0) || (destIndex < 0))
+    	{
+    		return false;
+    	}
+
+        if ((vertexList.get(startIndex) == null) || (vertexList.get(destIndex) == null))
+        {
+        	return false;
+        }
+
+        return hasRouteUtil(startIndex, destIndex);
+    }
+
     void resetGraph()
     {
     	for(Vertex v: vertexList)
@@ -281,6 +333,9 @@ public class Graph {
 		myGraph.addVertex('E');
 		myGraph.addVertex('F');
 		myGraph.addVertex('G');
+		myGraph.addVertex('H');
+
+		myGraph.setDirection(true);
 
 		myGraph.addEdge(0, 1);
 		myGraph.addEdge(0, 2);
@@ -293,14 +348,19 @@ public class Graph {
 		myGraph.addEdge(3, 4);
 		myGraph.addEdge(3, 5);
 		myGraph.addEdge(5, 6);
-
+		myGraph.addEdge(7, 6);
+		
 		myGraph.displayGraph();
+		
+
+		System.out.printf("%nHas Route from A to H: %b %n%n", myGraph.hasRoute(0, 7));
+		System.out.printf("%nHas Route from A to F: %b %n%n", myGraph.hasRoute(0, 5));
 		
 		System.out.printf("%n%n");
 		System.out.println("BFS output: ");
 		myGraph.breadthFirstSearch();
 		
-
+		
 		myGraph.resetGraph();
 
 		System.out.println("DFS output: ");
